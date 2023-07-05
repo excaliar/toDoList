@@ -2,8 +2,6 @@
 //holds all to-do items
 let toDoList = [];
 
-//holds all project names
-let projects = [];
 
 function toDoItem(title, dueDate) {
     this.title = title;
