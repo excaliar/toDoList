@@ -3,10 +3,10 @@
 let toDoList = [];
 
 
-function toDoItem(title, dueDate) {
+function toDoItem(title, dueDate, project) {
     this.title = title;
     this.dueDate = dueDate;
-    this.project = ''
+    this.project = project;
 
     toDoList.push(this)
 }
@@ -30,7 +30,7 @@ function displayToDoList() {
 
         let newDate = document.createElement('div');
         newDate.classList.add('date');
-        newDate.textContent = `Due: ${toDo.dueDate}`;
+        newDate.textContent = toDo.dueDate;
         newToDo.appendChild(newDate);
     })
 }
@@ -40,7 +40,13 @@ function addNewItemDOM() {
 
     let tasks = document.querySelector('.tasks');
 
+    let today = document.querySelector('.today');
+
+    let week = document.querySelector('.week');
+
     clickNew.addEventListener('click', () => {
+        let projectButts = document.querySelectorAll('.projectButton')
+
         let inputContainer = document.createElement('div');
         inputContainer.classList.add('doItNow');
         tasks.appendChild(inputContainer);
@@ -70,7 +76,6 @@ function addNewItemDOM() {
         inputDate.classList.add('inputDate');
         formm.appendChild(inputDate);
 
-
         let submitTask = document.createElement('button');
         submitTask.classList.add('submitTask')
         formm.appendChild(submitTask);
@@ -78,9 +83,25 @@ function addNewItemDOM() {
 
         submitTask.addEventListener('click', (e) => {
             e.preventDefault();
+            let proName = undefined
             if (inputTask.value != "" && inputDate.value != "") {
-                new toDoItem(inputTask.value, inputDate.value);
-                displayToDoList();
+                projectButts.forEach(project => {
+                    if (project.classList.contains('select')) {
+                        proName = project.textContent;
+                    } 
+                })
+                new toDoItem(inputTask.value, inputDate.value, proName);
+                if (proName != undefined) {
+                    displayProject();
+                } else {
+                    if (today.classList.contains('select')) {
+                        displayTodayList()
+                    } else if (week.classList.contains('select')) {
+                        displayWeekList()
+                    } else {
+                        displayToDoList()
+                    }
+                }
             }
         })
     })
@@ -88,6 +109,10 @@ function addNewItemDOM() {
 
 function checkOff() {
     let too = document.querySelector('.tasks')
+
+    let inbo = document.querySelector('.inbox')
+    let tod = document.querySelector('.today')
+    let week = document.querySelector('.week')
 
     too.addEventListener('click', (e) => {
         if (e.target.matches('.finish')) {
@@ -97,24 +122,240 @@ function checkOff() {
             toDoList.forEach((toDo, index) => {
                 if (toDo.title == task) {
                     toDoList.splice(index, 1);
-                    displayToDoList();
                 }
             })
+            if (inbo.classList.contains('select')) {
+                displayToDoList();
+                console.log('hi')
+            } else if (tod.classList.contains('select')) {
+                displayTodayList();
+            } else if (week.classList.contains('select')) {
+                displayWeekList();
+            }
+        }
+    })
+}
+
+Date.prototype.getWeek = function() {
+    var onejan = new Date(this.getFullYear(),0,1);
+    return Math.ceil((((this - onejan) / 86400000) + onejan.getDay())/7);
+}
+
+function displayWeekList() {
+    const too = document.querySelector('.tasks');
+    const now = new Date();
+    too.textContent = ''
+
+    toDoList.forEach(toDo => {
+        let today = new Date(toDo.dueDate)
+
+        if (today.getWeek() == now.getWeek() && today.getFullYear() == now.getFullYear()) {
+            let newToDo = document.createElement('div');
+            newToDo.classList.add("doItNow");
+            too.appendChild(newToDo);
+
+            let newFinish = document.createElement('button');
+            newFinish.classList.add('finish');
+            newToDo.appendChild(newFinish);
+
+            let newTask = document.createElement('div');
+            newTask.classList.add('task');
+            newTask.textContent = toDo.title;
+            newToDo.appendChild(newTask);
+
+            let newDate = document.createElement('div');
+            newDate.classList.add('date');
+            newDate.textContent = toDo.dueDate;
+            newToDo.appendChild(newDate);
+        }
+    })
+
+}
+
+function thisWeek() {
+    let week = document.querySelector('.week')
+    let btns = document.querySelectorAll('.sideBar button')
+    week.addEventListener('click', () => {
+        btns.forEach(btn => {
+            btn.classList.add('deselect');
+            btn.classList.remove('select');
+        })
+        week.classList.remove('deselect');
+        week.classList.add('select');
+
+        displayWeekList();
+        
+    })
+}
+
+function displayTodayList() {
+    const too = document.querySelector('.tasks');
+    const now = new Date();
+    too.textContent = ''
+
+    toDoList.forEach(toDo => {
+        let today = new Date(toDo.dueDate)
+
+        if (today.getDate() + 1 == now.getDate() && today.getMonth() + 1 == now.getMonth() + 1 && today.getFullYear() == now.getFullYear()) {
+            let newToDo = document.createElement('div');
+            newToDo.classList.add("doItNow");
+            too.appendChild(newToDo);
+
+            let newFinish = document.createElement('button');
+            newFinish.classList.add('finish');
+            newToDo.appendChild(newFinish);
+
+            let newTask = document.createElement('div');
+            newTask.classList.add('task');
+            newTask.textContent = toDo.title;
+            newToDo.appendChild(newTask);
+
+            let newDate = document.createElement('div');
+            newDate.classList.add('date');
+            newDate.textContent = toDo.dueDate;
+            newToDo.appendChild(newDate);
+        }
+    })
+}
+
+function today() {
+
+    let daily = document.querySelector('.today')
+    let btns = document.querySelectorAll('.sideBar button')
+    daily.addEventListener('click', () => {
+        btns.forEach(btn => {
+            btn.classList.add('deselect');
+            btn.classList.remove('select');
+        })
+        daily.classList.remove('deselect');
+        daily.classList.add('select');
+
+        displayTodayList();
+    })
+}
+
+function selectInbox() {
+    let inbox = document.querySelector('.inbox')
+    let btns = document.querySelectorAll('.sideBar button')
+    inbox.addEventListener('click', () => {
+        btns.forEach(btn => {
+            btn.classList.add('deselect');
+            btn.classList.remove('select')
+        })
+        inbox.classList.remove('deselect');
+        inbox.classList.add('select');
+        displayToDoList();
+    })
+}
+
+function createNewProjectDOM() {
+    let addProject = document.querySelector('.addProject');
+    const sideBar = document.querySelector('.sideBar');
+
+    addProject.addEventListener('click', () => {
+        let newProject = document.createElement('input');
+        newProject.setAttribute('type', 'text');
+        newProject.classList.add('newProject');
+        sideBar.appendChild(newProject);
+
+        newProject.addEventListener('keypress', function (e) {
+            if (e.key === "Enter" && newProject.value != '') {
+                let content = newProject.value
+                let newProjectAdd = document.createElement('button');
+                newProjectAdd.textContent = content;
+                newProjectAdd.classList.add('deselect');
+                newProjectAdd.classList.add('projectButton')
+
+                sideBar.appendChild(newProjectAdd)
+                sideBar.removeChild(newProject);
+
+            }
+        })
+    })
+}
+
+function displayProject() {
+    const too = document.querySelector('.tasks');
+    too.textContent = ''
+
+    let projectButts = document.querySelectorAll('.projectButton')
+
+    let selector = ''
+
+    projectButts.forEach(project => {
+        if (project.classList.contains('select')) {
+            selector = project.textContent;
+        } 
+    })
+
+    toDoList.forEach(toDo => {
+
+        if (toDo.project == selector) {
+            let newToDo = document.createElement('div');
+            newToDo.classList.add("doItNow");
+            too.appendChild(newToDo);
+
+            let newFinish = document.createElement('button');
+            newFinish.classList.add('finish');
+            newToDo.appendChild(newFinish);
+
+            let newTask = document.createElement('div');
+            newTask.classList.add('task');
+            newTask.textContent = toDo.title;
+            newToDo.appendChild(newTask);
+
+            let newDate = document.createElement('div');
+            newDate.classList.add('date');
+            newDate.textContent = toDo.dueDate;
+            newToDo.appendChild(newDate);
+        }
+    })
+}
+
+function selectProject() {
+    const sideBar = document.querySelector('.sideBar')
+    let btns = document.querySelectorAll('.mainBut')
+    const too = document.querySelector('.tasks');
+    
+    sideBar.addEventListener('click', (e) => {
+        if (e.target.matches('.projectButton')) {
+            let dad = e.target;
+            let granddad = dad.parentNode;
+            let projects = granddad.querySelectorAll('.projectButton')
+            projects.forEach(project => {
+                project.classList.add('deselect');
+                project.classList.remove('select');
+            })
+            dad.classList.add('select')
+            dad.classList.remove('deselect')
+
+            displayProject()
+            
+           btns.forEach(btn => {
+            btn.classList.add('deselect')
+            btn.classList.remove('select')
+
+            btn.addEventListener('click', () => {
+                dad.classList.add('deselect')
+                dad.classList.remove('select')
+            
+            })
+           })
         }
     })
 }
 
 let yas = new toDoItem('wh the dishes', '2023-07-22')
 let pirate = new toDoItem('wash the dishes', '2023-09-14')
-let mom = new toDoItem('wash dishes', '2023-07-07')
+let mom = new toDoItem('wash dishes', '2023-07-06')
 
 displayToDoList()
 addNewItemDOM()
 checkOff()
-
-
-
-
-
+thisWeek()
+today() 
+selectInbox()
+createNewProjectDOM()
+selectProject()
 
 
