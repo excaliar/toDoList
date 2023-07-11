@@ -100,7 +100,7 @@ function addNewItemDOM() {
                     } else if (week.classList.contains('select')) {
                         displayWeekList()
                     } else {
-                        displayToDoList()
+                        displayProject()
                     }
                 }
             }
@@ -135,6 +135,8 @@ function checkOff() {
                 displayTodayList();
             } else if (week.classList.contains('select')) {
                 displayWeekList();
+            } else {
+                displayProject();
             }
         }
     })
