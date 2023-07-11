@@ -91,6 +91,7 @@ function addNewItemDOM() {
                     } 
                 })
                 new toDoItem(inputTask.value, inputDate.value, proName);
+                saveLocalStorage();
                 if (proName != undefined) {
                     displayProject();
                 } else {
@@ -122,11 +123,14 @@ function checkOff() {
             toDoList.forEach((toDo, index) => {
                 if (toDo.title == task) {
                     toDoList.splice(index, 1);
+                    localStorage.clear()
+                    for (let i = 0; i < toDoList.length; i++) {
+                        localStorage.setItem(`${i}`, JSON.stringify(toDoList[i]))
+                    }
                 }
             })
             if (inbo.classList.contains('select')) {
                 displayToDoList();
-                console.log('hi')
             } else if (tod.classList.contains('select')) {
                 displayTodayList();
             } else if (week.classList.contains('select')) {
@@ -345,11 +349,42 @@ function selectProject() {
     })
 }
 
-let yas = new toDoItem('wh the dishes', '2023-07-22')
-let pirate = new toDoItem('wash the dishes', '2023-09-14')
-let mom = new toDoItem('wash dishes', '2023-07-06')
+function saveLocalStorage() {
+    localStorage.setItem(`${localStorage.length}`, JSON.stringify(toDoList[localStorage.length]))
+}
 
-displayToDoList()
+function getLocalStorage() {
+    if (localStorage.length > 0) {
+        for (let i = 0; i < localStorage.length; i++) {
+            toDoList.push(JSON.parse(localStorage.getItem(`${i}`)))
+        }
+        displayToDoList()
+    }
+} 
+
+function localStorageProjectsDOM() {
+    projects = []
+    const sideBar = document.querySelector('.sideBar');
+    for (let i = 0; i < toDoList.length; i++) {
+        if (toDoList[i].project != undefined && !projects.includes(toDoList[i].project)) {
+            projects.push(toDoList[i].project)
+        }
+    }
+    for (let j = 0; j < projects.length; j++) {
+        let content = projects[j];
+        let newProjectAdd = document.createElement('button');
+        newProjectAdd.textContent = content;
+        newProjectAdd.classList.add('deselect');
+        newProjectAdd.classList.add('projectButton');
+
+        sideBar.appendChild(newProjectAdd);
+    }
+    
+}
+
+
+getLocalStorage()
+localStorageProjectsDOM()
 addNewItemDOM()
 checkOff()
 thisWeek()
@@ -357,5 +392,6 @@ today()
 selectInbox()
 createNewProjectDOM()
 selectProject()
+
 
 
